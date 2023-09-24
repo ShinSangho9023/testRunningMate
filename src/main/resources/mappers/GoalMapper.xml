@@ -1,0 +1,38 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.teamproject.dao.GoalDAO">
+
+
+	<!-- 대목표 저장 -->
+	<insert id="bigGoalInsert" parameterType="GoalDTO">
+		insert into
+		big_goal 
+			(bigGoal_number, bigGoal_name, bigGoal_startDate, bigGoal_endDate, user_id)			
+		values
+			(big_goal_seq.NEXTVAL, #{bigGoal_name}, #{bigGoal_startDate}, #{bigGoal_endDate}, #{user_id})
+	</insert>
+	
+	<!-- 대목표 불어오기 -->
+	<select id="GetBigGoalList" resultType="Goal" parameterType="String">
+ 	 SELECT * FROM 
+ 	 	big_goal
+ 	 WHERE 
+ 	 	user_id = #{userId}
+ 	 ORDER BY 
+ 	 	bigGoal_number <!-- bigGoal_number를 작은 수부터 정렬 -->
+	</select>
+	
+<select id="getBigGoalCount" parameterType="String" resultType="BigGoalCount">
+    SELECT
+        (SELECT COUNT(*) FROM big_goal WHERE bigGoal_state = 'ongoing' AND user_id = #{userId}) AS ongoing_count,
+        (SELECT COUNT(*) FROM big_goal WHERE bigGoal_state = 'completed' AND user_id = #{userId}) AS completed_count,
+        (SELECT COUNT(*) FROM big_goal WHERE bigGoal_endDate &lt; SYSDATE AND user_id = #{userId}) AS overdue_count
+    FROM dual
+</select>
+	
+	
+	
+	
+</mapper>
