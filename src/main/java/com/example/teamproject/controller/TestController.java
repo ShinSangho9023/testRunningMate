@@ -1,11 +1,13 @@
 package com.example.teamproject.controller;
 
-import java.util.ArrayList;  
+import java.util.ArrayList;   
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -13,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.teamproject.domain.BigGoalCount;
+import com.example.teamproject.domain.Dday;
 import com.example.teamproject.domain.Goal;
 import com.example.teamproject.domain.GoalDTO;
+import com.example.teamproject.domain.SmallGoal;
+import com.example.teamproject.domain.SmallGoalCount;
 import com.example.teamproject.domain.SmallGoalDTO;
 import com.example.teamproject.service.GoalService;
 
@@ -31,7 +36,7 @@ public class TestController {
 	GoalService service;
 	
 	
-	    @GetMapping
+	    @GetMapping("/")
 	    public String index() {
 	        return "/build/index.html";
 	    }
@@ -64,13 +69,34 @@ public class TestController {
     	}
     }
 	
+	//소목표 저장하기
+	@PostMapping("api/smallGoal")
+	 public ResponseEntity<String> smallgoal(@RequestBody SmallGoal smallGoal  ) 
+		{
+	    	 try 
+	    	 {
+	    		 //등록 성공 시
+	    		 log.debug("소목표 저장 들어온 값 확인 {}", smallGoal);
+	    		 int i = service.smallGoalInsert(smallGoal);
+	    		 
+	    		 log.debug("소목표 저장하고 돌아온 거 확인 {}", i);
+	    		 return ResponseEntity.ok("User registered successfully");       
+	    	} 
+	    	catch (Exception e) 
+	    	{
+	    		// 등록 실패 시
+	    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed");
+	    	}
+	    }
+	
+	
 	//대목표 전체 불러오기
 	@GetMapping("/api/BigGoals")
 	public ArrayList<Goal> GetBigGoalList(@RequestParam String userId) {
 		log.debug("들어온 값 확인 {}", userId);
 		
 		ArrayList<Goal> list = new ArrayList<>();	
-		list = service.GetBigGoalList(userId);
+		list = service.getBigGoalList(userId);
 		
 		log.debug("DB에서 불러온 대목표 배열 확인 {}", list);
 		return list;
@@ -87,20 +113,87 @@ public class TestController {
 	    return bigGoalCount;
 	}
 	
+	// 소목표 불러오기
 	@GetMapping("/api/user/smallGoals")
-	public String GetSmallGoalList(@RequestParam String userId, String bigGoalName, int key) {
+	public ArrayList<SmallGoal> GetSmallGoalList(@RequestParam int bigGoal_number) 
+	{
+		ArrayList<SmallGoal> List = new ArrayList<>();
+		SmallGoalDTO smallGoalDTO = new SmallGoalDTO();
+		log.debug("소목표에서 값 넘어오는 지 확인 {}", bigGoal_number);
 		
-		SmallGoalDTO smallGoal = new SmallGoalDTO();
-		log.debug("소목표에서 값 넘어오는 지 확인 {}, {}, {}", userId, bigGoalName, key);
-		smallGoal.setUserId(userId);
-		smallGoal.setBigGoalName(bigGoalName);
-		smallGoal.setKey(key);
-		
-		log.debug("소목표 확인 {}", smallGoal);
-		//service.GetSmallGoalList(smallGoal);
-		
-		return "값 넘어감";
+		smallGoalDTO.setBigGoal_number(bigGoal_number);
+		log.debug("소목표 확인 {}", smallGoalDTO);
+		List = service.getSmallGoalList(smallGoalDTO);
+		log.debug("소목표 불러오기 값 확인 {}", List);
+		return List;
 	}
+	
+	//소목표 갯수 불러오기
+	@GetMapping("/api/SmallGoalCount")
+	public SmallGoalCount getSmallGoalCount(@RequestParam int number) {
+		SmallGoalCount count = new SmallGoalCount();
+		
+		count = service.getSmallGoalCount(number);
+		return count;
+	}
+	
+	// 대목표 Dday 불러오기
+	@GetMapping("/api/Dday")
+	public int GetDday(@RequestParam int bigGoal_number) {
+		int day;
+		day = service.GetDday(bigGoal_number);
+		return day;
+	}
+	
+	//소목표 디데이 불러오기
+	@GetMapping("/api/SmallDday")
+	public int GetSmallDday(@RequestParam int smallGoal_number) {
+	    log.debug("디데이 소목표 값 {}", smallGoal_number);
+	   
+
+	    int day;
+	    day = service.GetSmallDday(smallGoal_number);
+	    return day;
+	}
+	
+	//소목표 삭제하기
+	// 경로 변수를 매개변수로 사용
+    @DeleteMapping("/api/user/smallGoals/delete/{smallGoalId}")
+    public void deleteSmallGoal(@PathVariable Long smallGoalId) {
+        // smallGoalId를 사용하여 소목표를 삭제
+        service.deleteSmallGoal(smallGoalId);
+
+    }
+	
+    //대목표 삭제하기 
+    @DeleteMapping("/api/user/BigGoals/delete/{BigGoalId}")
+    public void deleteBigGoal(@PathVariable Long BigGoalId) {
+    	service.deleteBigGoal(BigGoalId);
+    }
+    
+    //대목표 수정하기
+    @PostMapping("api/BigGoal/Update")
+    public void UpDateBigGoal(@RequestBody GoalDTO goalDTO) {
+    	if(goalDTO.getBigGoal_name() != null || goalDTO.getBigGoal_startDate() != null  || goalDTO.getBigGoal_endDate() != null ) {
+    		
+    		log.debug("대목표 수정하기 확인 {}", goalDTO);
+    		service.UpDateBigGoal(goalDTO);
+    	}
+    }
+    
+    //소목표 수정하기
+    @PostMapping("/api/SmallGoal/Update")
+    public void UpDateSmallGoal(@RequestBody SmallGoal smallGoal) {
+    	if(smallGoal.getSmallGoal_name() != null || smallGoal.getSmallGoal_startDate() != null || smallGoal.getSmallGoal_endDate() != null) {
+    		log.debug("소목표 수정하기 확인 {}", smallGoal);
+    		service.UpDateSmallGoal(smallGoal);
+    		log.debug("소목표 수정하기 돌아옴");
+    		
+    	}
+    }
+    
+    
+	
 	
 	
 }

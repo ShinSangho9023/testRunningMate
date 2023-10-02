@@ -1,6 +1,6 @@
 package com.example.teamproject.domain;
 
-import java.util.Date;
+import java.util.Date; 
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,4 +23,5 @@ public class SmallGoal {
 	private String smallGoal_memo;
 	private Integer smallGoal_totalTime;
 	private Long bigGoal_number;
+	
 }

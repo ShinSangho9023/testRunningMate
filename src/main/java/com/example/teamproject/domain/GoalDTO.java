@@ -15,7 +15,7 @@ public class GoalDTO {
     private Date bigGoal_startDate;
     private Date bigGoal_endDate;
     private String user_id;
-    
+    int bigGoal_number;
     
 
 }

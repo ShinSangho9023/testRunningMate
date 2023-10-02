@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmallGoalDTO {
+public class SmallGoalCount {
 	
-	private String user_id;
-	private String bigGoal_name;
-	private int bigGoal_number;
-	
-	
+	private int ongoing_count;
+	private int completed_count;
+	private int UpComingGoal_count;
 }

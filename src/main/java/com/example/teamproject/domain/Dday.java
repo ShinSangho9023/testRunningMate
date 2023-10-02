@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmallGoalDTO {
+public class Dday {
 	
-	private String user_id;
-	private String bigGoal_name;
-	private int bigGoal_number;
+	int Dday;
 	
 	
 }
